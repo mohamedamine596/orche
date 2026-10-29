@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Online Shop</title>
+  <style>body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }</style>
+</head>
+<body>
+  <h1>My Online Shop</h1>
+  <ul id="products"></ul>
+  <h2>Add a product</h2>
+  <input id="name" placeholder="Name">
+  <input id="price" type="number" step="0.01" placeholder="Price">
+  <button onclick="addProduct()">Add</button>
+
+  <script>
+    // Relative URL: the request goes to nginx, which forwards it to the backend
+    async function loadProducts() {
+      const res = await fetch("/api/products");
+      const products = await res.json();
+      document.getElementById("products").innerHTML =
+        products.map(p => `<li>${p.name} — ${p.price}</li>`).join("");
+    }
+    async function addProduct() {
+      await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: document.getElementById("name").value,
+          price: parseFloat(document.getElementById("price").value)
+        })
+      });
+      loadProducts();
+    }
+    loadProducts();
+  </script>
+</body>
+</html>
